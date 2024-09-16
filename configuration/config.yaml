@@ -1,0 +1,14 @@
+engine:
+  type: "in_memory"
+  partitions_number: 8
+server:
+  server_type: "cmd" # cmd or tcp
+network:
+  tcp_socket: ":9080"
+  max_connections: 100
+  max_message_size: "4Kb"
+  idle_timeout: 5m
+logging:
+  level: "debag"
+  log_to_file: false
+  log_path: "data/logs/out.log"

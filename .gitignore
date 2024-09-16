@@ -1,0 +1,4 @@
+.idea
+data/logs
+data/wal
+.DS_Store
