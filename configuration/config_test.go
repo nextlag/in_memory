@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -24,6 +25,12 @@ func TestLoad(t *testing.T) {
 				},
 				Server: &Server{
 					SrvType: "tcp",
+				},
+				Network: &Network{
+					TCPSocket:      ":9080",
+					MaxConnections: 100,
+					MaxMessageSize: "4Kb",
+					IdleTimeout:    time.Minute * 5,
 				},
 				Logging: &Logging{
 					Level:       -4,
