@@ -2,18 +2,15 @@ package initialize
 
 import (
 	"errors"
+
 	"github.com/nextlag/in_memory/configuration"
-	"github.com/nextlag/in_memory/internal/storage/engine/in_memory"
+	"github.com/nextlag/in_memory/internal/server/storage/engine/in_memory"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
 func CreateEngine(cfg *configuration.Engine, log *l.Logger) (*in_memory.Engine, error) {
 	if log == nil {
 		return nil, errors.New("logger is invalid")
-	}
-
-	if cfg == nil {
-		return in_memory.NewEngine(log)
 	}
 
 	if cfg.Type != "" {

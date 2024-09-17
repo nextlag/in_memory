@@ -3,6 +3,7 @@ package l
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -41,7 +42,11 @@ var (
 	}
 )
 
-func NewLogger(cfg *config.Config) *Logger {
+func NewLogger(cfg *config.Config) (*Logger, error) {
+	if cfg == nil {
+		return nil, errors.New("failed to init config")
+	}
+
 	opts := LoggerOptions{
 		SlogOpts: &HandlerOptions{
 			Level:     cfg.Logging.Level,
@@ -62,7 +67,7 @@ func NewLogger(cfg *config.Config) *Logger {
 	}
 
 	handler := opts.slogHandler(opts.Out, cfg.Logging.ProjectPath)
-	return slog.New(handler)
+	return slog.New(handler), nil
 }
 
 func (lo *LoggerOptions) slogHandler(out io.Writer, projectPath string) *logHandler {

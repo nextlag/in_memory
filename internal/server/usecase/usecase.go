@@ -4,12 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nextlag/in_memory/internal/storage"
+
+	"github.com/nextlag/in_memory/internal/server/storage"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
+const (
+	responseOk       = "[ok]"
+	responseErr      = "[error]"
+	responseNotFound = "[not found]"
+)
+
 type computeLayer interface {
-	Parse(string) (Query, error)
+	Process(queryStr string) (Query, error)
 }
 
 type storageLayer interface {
@@ -21,6 +28,7 @@ type storageLayer interface {
 type UseCase struct {
 	computeLayer computeLayer
 	storageLayer storageLayer
+	response     string
 	log          *l.Logger
 }
 
@@ -33,10 +41,6 @@ func New(computeLayer computeLayer, storageLayer storageLayer, log *l.Logger) (*
 		return nil, errors.New("storage is invalid")
 	}
 
-	if log == nil {
-		return nil, errors.New("logger is invalid")
-	}
-
 	return &UseCase{
 		computeLayer: computeLayer,
 		storageLayer: storageLayer,
@@ -46,9 +50,9 @@ func New(computeLayer computeLayer, storageLayer storageLayer, log *l.Logger) (*
 
 func (uc *UseCase) HandleQuery(ctx context.Context, queryStr string) string {
 	uc.log.Debug("handling query", l.StringAttr("query", queryStr))
-	query, err := uc.computeLayer.Parse(queryStr)
+	query, err := uc.computeLayer.Process(queryStr)
 	if err != nil {
-		return fmt.Sprintf("[error] %s", err.Error())
+		return fmt.Sprintf("%s %s", responseErr, err.Error())
 	}
 
 	switch query.CommandID() {
@@ -62,7 +66,7 @@ func (uc *UseCase) HandleQuery(ctx context.Context, queryStr string) string {
 		uc.log.Error("Compute layer is incorrect", l.IntAttr("command_id", query.CommandID()))
 	}
 
-	return "[error] internal error"
+	return fmt.Sprintf("%s internal error", responseErr)
 }
 
 func (uc *UseCase) setQuery(ctx context.Context, query Query) string {
@@ -71,26 +75,26 @@ func (uc *UseCase) setQuery(ctx context.Context, query Query) string {
 		return fmt.Sprintf("[error] %s", err.Error())
 	}
 
-	return "[ok]"
+	return responseOk
 }
 
 func (uc *UseCase) getQuery(ctx context.Context, query Query) string {
 	arguments := query.Arguments()
 	value, err := uc.storageLayer.Get(ctx, arguments[0])
-	if errors.Is(err, storage.ErrorNotFound) {
-		return "[not found]"
+	if errors.Is(err, storage.ErrNotFound) {
+		return responseNotFound
 	} else if err != nil {
 		return fmt.Sprintf("[error] %s", err.Error())
 	}
 
-	return fmt.Sprintf("[ok] %s", value)
+	return fmt.Sprintf("%s %s", responseOk, value)
 }
 
 func (uc *UseCase) delQuery(ctx context.Context, query Query) string {
 	arguments := query.Arguments()
 	if err := uc.storageLayer.Del(ctx, arguments[0]); err != nil {
-		return fmt.Sprintf("[error] %s", err.Error())
+		return fmt.Sprintf("%s %s", responseErr, err.Error())
 	}
 
-	return "[ok]"
+	return responseOk
 }

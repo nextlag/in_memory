@@ -3,7 +3,6 @@ package initialize
 import (
 	"context"
 	"os"
-	"time"
 )
 
 func (i *Initialize) Run(ctx context.Context) {
@@ -14,10 +13,9 @@ func (i *Initialize) Run(ctx context.Context) {
 	i.wg.Add(1)
 	go func() {
 		defer i.wg.Done()
-		if err := i.srv.LaunchServer(ctx, func(ctx context.Context, query []byte, count int) (response string) {
-			message := string(query[:count])
-			response = i.uc.HandleQuery(ctx, message)
-			return response
+		if err := i.srv.LaunchServer(ctx, func(ctx context.Context, query []byte) []byte {
+			response := i.uc.HandleQuery(ctx, string(query))
+			return []byte(response)
 		}); err != nil {
 			sigs <- os.Interrupt
 		}
@@ -25,12 +23,7 @@ func (i *Initialize) Run(ctx context.Context) {
 
 	<-ctx.Done()
 
-	sCtx, sCansel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	defer sCansel()
-
-	if err := i.srv.Close(sCtx); err != nil {
-		i.log.Error("error closing server", "err", sCtx.Err().Error())
-	}
+	i.srv.Close()
 
 	i.wg.Wait()
 	i.log.Info("Close completed")

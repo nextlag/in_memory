@@ -2,12 +2,14 @@ package configuration
 
 import (
 	"flag"
-	"github.com/caarlos0/env/v6"
-	"github.com/joho/godotenv"
-	"github.com/nextlag/in_memory/pkg/cleanenv"
 	"log"
 	"log/slog"
 	"sync"
+	"time"
+
+	"github.com/caarlos0/env/v6"
+	"github.com/joho/godotenv"
+	"github.com/nextlag/in_memory/pkg/cleanenv"
 )
 
 var (
@@ -22,6 +24,7 @@ type (
 		CfgYAML string   `yaml:"config_yaml" env:"CONFIG_YAML"`
 		Server  *Server  `yaml:"server"`
 		Engine  *Engine  `yaml:"engine"`
+		Network *Network `yaml:"network"`
 		Logging *Logging `yaml:"logging"`
 	}
 
@@ -32,6 +35,13 @@ type (
 	Engine struct {
 		Type             string `yaml:"type"`
 		PartitionsNumber uint   `yaml:"partitions_number"`
+	}
+
+	Network struct {
+		TCPSocket      string        `yaml:"tcp_socket"`
+		MaxConnections int           `yaml:"max_connections"`
+		MaxMessageSize string        `yaml:"max_message_size"`
+		IdleTimeout    time.Duration `yaml:"idle_timeout"`
 	}
 
 	Logging struct {
@@ -53,6 +63,7 @@ func Load() *Config {
 			log.Fatalf("error load config.yaml: %v", err)
 		}
 
+		flag.StringVar(&cfg.Network.TCPSocket, "addr", cfg.Network.TCPSocket, "Host TCP server")
 		flag.Var(&LogLevelValue{Value: &cfg.Logging.Level}, "level", "Log level (debug, info, warn, error)")
 
 		if err = env.Parse(&cfg); err != nil {

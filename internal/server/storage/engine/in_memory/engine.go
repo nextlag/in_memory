@@ -3,9 +3,10 @@ package in_memory
 import (
 	"context"
 	"errors"
-	"github.com/nextlag/in_memory/pkg/logger/l"
-	"github.com/nextlag/in_memory/pkg/tools"
 	"hash/fnv"
+
+	"github.com/nextlag/in_memory/internal/server/storage"
+	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
 type Engine struct {
@@ -43,7 +44,7 @@ func (e *Engine) Set(ctx context.Context, key, value string) {
 	partition := e.partitions[partitionIdx]
 	partition.Set(key, value)
 
-	txID := tools.GetTxIDFromContext(ctx)
+	txID := storage.GetTxIDFromContext(ctx)
 	e.log.Debug("successfull set query", "tx", txID)
 }
 
@@ -56,7 +57,7 @@ func (e *Engine) Get(ctx context.Context, key string) (string, bool) {
 	partition := e.partitions[partitionIdx]
 	value, found := partition.Get(key)
 
-	txID := tools.GetTxIDFromContext(ctx)
+	txID := storage.GetTxIDFromContext(ctx)
 	e.log.Debug("successfully get query", "tx", txID)
 	return value, found
 }
@@ -70,7 +71,7 @@ func (e *Engine) Del(ctx context.Context, key string) {
 	partition := e.partitions[partitionIdx]
 	partition.Del(key)
 
-	txID := tools.GetTxIDFromContext(ctx)
+	txID := storage.GetTxIDFromContext(ctx)
 	e.log.Debug("successfull del query", "tx", txID)
 }
 

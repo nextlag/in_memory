@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	config "github.com/nextlag/in_memory/configuration"
-	"github.com/nextlag/in_memory/internal/server/initialize"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	config "github.com/nextlag/in_memory/configuration"
+	"github.com/nextlag/in_memory/internal/server/initialize"
 )
 
 func main() {

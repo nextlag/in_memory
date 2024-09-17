@@ -3,13 +3,11 @@ package storage
 import (
 	"context"
 	"errors"
+
 	"github.com/nextlag/in_memory/pkg/logger/l"
-	"github.com/nextlag/in_memory/pkg/tools"
 )
 
-var (
-	ErrorNotFound = errors.New("not found")
-)
+var ErrNotFound = errors.New("not found")
 
 type Engine interface {
 	Set(context.Context, string, string)
@@ -23,13 +21,9 @@ type Storage struct {
 	log       *l.Logger
 }
 
-func New(engine Engine, log *l.Logger, opt ...Option) (*Storage, error) {
+func New(engine Engine, log *l.Logger, options ...Option) (*Storage, error) {
 	if engine == nil {
 		return nil, errors.New("engine is invalid")
-	}
-
-	if log == nil {
-		return nil, errors.New("logger is invalid")
 	}
 
 	storage := &Storage{
@@ -37,7 +31,7 @@ func New(engine Engine, log *l.Logger, opt ...Option) (*Storage, error) {
 		log:    log,
 	}
 
-	for _, opt := range opt {
+	for _, opt := range options {
 		opt(storage)
 	}
 
@@ -49,7 +43,7 @@ func New(engine Engine, log *l.Logger, opt ...Option) (*Storage, error) {
 
 func (s *Storage) Set(ctx context.Context, key, value string) error {
 	txID := s.generator.Generate()
-	ctx = tools.ContextWithTxID(ctx, txID)
+	ctx = ContextWithTxID(ctx, txID)
 
 	s.engine.Set(ctx, key, value)
 	return nil
@@ -58,7 +52,7 @@ func (s *Storage) Set(ctx context.Context, key, value string) error {
 func (s *Storage) Del(ctx context.Context, key string) error {
 
 	txID := s.generator.Generate()
-	ctx = tools.ContextWithTxID(ctx, txID)
+	ctx = ContextWithTxID(ctx, txID)
 
 	s.engine.Del(ctx, key)
 	return nil
@@ -70,11 +64,11 @@ func (s *Storage) Get(ctx context.Context, key string) (string, error) {
 	}
 
 	txID := s.generator.Generate()
-	ctx = tools.ContextWithTxID(ctx, txID)
+	ctx = ContextWithTxID(ctx, txID)
 
 	value, found := s.engine.Get(ctx, key)
 	if !found {
-		return "", ErrorNotFound
+		return "", ErrNotFound
 	}
 
 	return value, nil
