@@ -1,0 +1,5 @@
+network:
+  server_address: "localhost:9080"
+  max_connections: 100
+  max_message_size: "4Kb"
+  idle_timeout: 1m

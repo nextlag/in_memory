@@ -1,4 +1,4 @@
-package usecase
+package parse
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 
 const (
 	startState = iota
-	symbolCheckState
+	letterOrPunctuationState
 	whiteSpaceState
 )
 
@@ -24,26 +24,26 @@ func NewParser() *Parser {
 func (p *Parser) Parse(query string) (tokens []string, err error) {
 	tokens = make([]string, 0, len(query))
 
+	p.state = startState
 	p.sb.Reset()
 
 	for i := range query {
 		err = errors.New(fmt.Sprintf("invalid symbol: '%s'", string(query[i])))
-
 		switch p.state {
 		case startState:
-			if !symbolCheck(query[i]) {
+			if !isLetterOrPunctuationSymbol(query[i]) {
 				return
 			}
 			p.sb.WriteByte(query[i])
-			p.state = symbolCheckState
-		case symbolCheckState:
+			p.state = letterOrPunctuationState
+		case letterOrPunctuationState:
 			if isSpaceSymbol(query[i]) {
 				tokens = append(tokens, p.sb.String())
 				p.sb.Reset()
 				p.state = whiteSpaceState
 				break
 			}
-			if !symbolCheck(query[i]) {
+			if !isLetterOrPunctuationSymbol(query[i]) {
 				return
 			}
 			p.sb.WriteByte(query[i])
@@ -51,30 +51,30 @@ func (p *Parser) Parse(query string) (tokens []string, err error) {
 			if isSpaceSymbol(query[i]) {
 				continue
 			}
-			if !symbolCheck(query[i]) {
+			if !isLetterOrPunctuationSymbol(query[i]) {
 				return
 			}
 
 			p.sb.WriteByte(query[i])
-			p.state = symbolCheckState
+			p.state = letterOrPunctuationState
 		}
 	}
 
-	if p.state == symbolCheckState {
+	if p.state == letterOrPunctuationState {
 		tokens = append(tokens, p.sb.String())
 	}
 
-	return
+	return tokens, nil
 }
 
-func isSpaceSymbol(s byte) bool {
-	return s == '\t' || s == '\n' || s == ' '
+func isSpaceSymbol(ch byte) bool {
+	return ch == '\t' || ch == '\n' || ch == ' '
 }
 
-func symbolCheck(s byte) bool {
-	return s >= 'a' && s <= 'z' ||
-		s >= 'A' && s <= 'Z' ||
-		s >= '0' && s <= '9' ||
-		s == '*' || s == '/' ||
-		s == '_' || s == '.'
+func isLetterOrPunctuationSymbol(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') ||
+		(ch >= 'A' && ch <= 'Z') ||
+		(ch >= '0' && ch <= '9') ||
+		ch == '*' || ch == '/' ||
+		ch == '_' || ch == '.'
 }

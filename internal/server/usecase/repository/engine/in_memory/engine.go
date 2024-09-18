@@ -5,7 +5,7 @@ import (
 	"errors"
 	"hash/fnv"
 
-	"github.com/nextlag/in_memory/internal/server/storage"
+	"github.com/nextlag/in_memory/internal/server/usecase/repository"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
@@ -14,7 +14,7 @@ type Engine struct {
 	log        *l.Logger
 }
 
-func NewEngine(log *l.Logger, options ...EngineOption) (*Engine, error) {
+func New(log *l.Logger, options ...InMemoryOption) (*Engine, error) {
 	if log == nil {
 		return nil, errors.New("logger is invalid")
 	}
@@ -44,8 +44,8 @@ func (e *Engine) Set(ctx context.Context, key, value string) {
 	partition := e.partitions[partitionIdx]
 	partition.Set(key, value)
 
-	txID := storage.GetTxIDFromContext(ctx)
-	e.log.Debug("successfull set query", "tx", txID)
+	txID := repository.GetTxIDFromContext(ctx)
+	e.log.Debug("successfully set query", "tx", txID)
 }
 
 func (e *Engine) Get(ctx context.Context, key string) (string, bool) {
@@ -57,7 +57,7 @@ func (e *Engine) Get(ctx context.Context, key string) (string, bool) {
 	partition := e.partitions[partitionIdx]
 	value, found := partition.Get(key)
 
-	txID := storage.GetTxIDFromContext(ctx)
+	txID := repository.GetTxIDFromContext(ctx)
 	e.log.Debug("successfully get query", "tx", txID)
 	return value, found
 }
@@ -71,8 +71,8 @@ func (e *Engine) Del(ctx context.Context, key string) {
 	partition := e.partitions[partitionIdx]
 	partition.Del(key)
 
-	txID := storage.GetTxIDFromContext(ctx)
-	e.log.Debug("successfull del query", "tx", txID)
+	txID := repository.GetTxIDFromContext(ctx)
+	e.log.Debug("successfully del query", "tx", txID)
 }
 
 func (e *Engine) partitionIdx(key string) int {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nextlag/in_memory/configuration"
+	config "github.com/nextlag/in_memory/config/server"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 	"github.com/nextlag/in_memory/pkg/parse"
 )
@@ -21,7 +21,14 @@ type Server interface {
 	Close()
 }
 
-func New(cfg *configuration.Config, log *l.Logger) (srv Server, err error) {
+func New(cfg *config.Config, log *l.Logger) (srv Server, err error) {
+	if cfg == nil {
+		return nil, errors.New("config is nil")
+	}
+	if log == nil {
+		return nil, errors.New("logger is nil")
+	}
+
 	var (
 		opt  []TCPServerOption
 		size int

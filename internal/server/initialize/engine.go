@@ -3,19 +3,24 @@ package initialize
 import (
 	"errors"
 
-	"github.com/nextlag/in_memory/configuration"
-	"github.com/nextlag/in_memory/internal/server/storage/engine/in_memory"
+	config "github.com/nextlag/in_memory/config/server"
+	"github.com/nextlag/in_memory/internal/server/usecase/repository/engine/in_memory"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
-func CreateEngine(cfg *configuration.Engine, log *l.Logger) (*in_memory.Engine, error) {
+const engineInMemory = "in_memory"
+
+func CreateEngine(cfg *config.Engine, log *l.Logger) (*in_memory.Engine, error) {
+	if cfg == nil {
+		return nil, errors.New("config is invalid")
+	}
 	if log == nil {
 		return nil, errors.New("logger is invalid")
 	}
 
 	if cfg.Type != "" {
 		supportedTypes := map[string]struct{}{
-			"in_memory": {},
+			engineInMemory: {},
 		}
 
 		if _, found := supportedTypes[cfg.Type]; !found {
@@ -23,10 +28,10 @@ func CreateEngine(cfg *configuration.Engine, log *l.Logger) (*in_memory.Engine, 
 		}
 	}
 
-	var opt []in_memory.EngineOption
+	var opt []in_memory.InMemoryOption
 	if cfg.PartitionsNumber != 0 {
 		opt = append(opt, in_memory.WithPartitions(cfg.PartitionsNumber))
 	}
 
-	return in_memory.NewEngine(log, opt...)
+	return in_memory.New(log, opt...)
 }

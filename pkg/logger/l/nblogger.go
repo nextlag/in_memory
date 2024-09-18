@@ -15,7 +15,7 @@ import (
 
 	"github.com/fatih/color"
 
-	config "github.com/nextlag/in_memory/configuration"
+	config "github.com/nextlag/in_memory/config/server"
 )
 
 type LoggerOptions struct {

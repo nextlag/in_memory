@@ -1,4 +1,4 @@
-package configuration
+package server
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	t.Parallel()
-	Env = "../.env"
+	Env = "../../.env"
 	Yaml = "config.yaml"
 	cfg = *Load()
 	cfg.Logging.ProjectPath = "."
@@ -18,7 +18,7 @@ func TestLoad(t *testing.T) {
 	}{
 		"load config": {
 			expectedCfg: Config{
-				CfgYAML: "configuration/config.yaml",
+				CfgYAML: "config/server/config.yaml",
 				Engine: &Engine{
 					Type:             "in_memory",
 					PartitionsNumber: 8,

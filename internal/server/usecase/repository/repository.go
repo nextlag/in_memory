@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"context"
@@ -15,18 +15,18 @@ type Engine interface {
 	Del(context.Context, string)
 }
 
-type Storage struct {
+type Repository struct {
 	engine    Engine
 	generator *IDGenerator
 	log       *l.Logger
 }
 
-func New(engine Engine, log *l.Logger, options ...Option) (*Storage, error) {
+func New(engine Engine, log *l.Logger, options ...Option) (*Repository, error) {
 	if engine == nil {
 		return nil, errors.New("engine is invalid")
 	}
 
-	storage := &Storage{
+	storage := &Repository{
 		engine: engine,
 		log:    log,
 	}
@@ -41,32 +41,32 @@ func New(engine Engine, log *l.Logger, options ...Option) (*Storage, error) {
 	return storage, nil
 }
 
-func (s *Storage) Set(ctx context.Context, key, value string) error {
-	txID := s.generator.Generate()
+func (r *Repository) Set(ctx context.Context, key, value string) error {
+	txID := r.generator.Generate()
 	ctx = ContextWithTxID(ctx, txID)
 
-	s.engine.Set(ctx, key, value)
+	r.engine.Set(ctx, key, value)
 	return nil
 }
 
-func (s *Storage) Del(ctx context.Context, key string) error {
+func (r *Repository) Del(ctx context.Context, key string) error {
 
-	txID := s.generator.Generate()
+	txID := r.generator.Generate()
 	ctx = ContextWithTxID(ctx, txID)
 
-	s.engine.Del(ctx, key)
+	r.engine.Del(ctx, key)
 	return nil
 }
 
-func (s *Storage) Get(ctx context.Context, key string) (string, error) {
+func (r *Repository) Get(ctx context.Context, key string) (string, error) {
 	if ctx.Err() != nil {
 		return "", ctx.Err()
 	}
 
-	txID := s.generator.Generate()
+	txID := r.generator.Generate()
 	ctx = ContextWithTxID(ctx, txID)
 
-	value, found := s.engine.Get(ctx, key)
+	value, found := r.engine.Get(ctx, key)
 	if !found {
 		return "", ErrNotFound
 	}

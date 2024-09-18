@@ -96,7 +96,10 @@ func (s *TCPServer) handleConnection(ctx context.Context, connection net.Conn, h
 
 	request := make([]byte, s.bufferSize)
 
-	for s.closing.Load() {
+	for {
+		if s.isClosing() {
+			break
+		}
 		if s.idleTimeout != 0 {
 			if err := connection.SetDeadline(time.Now().Add(s.idleTimeout)); err != nil {
 				s.log.Warn("failed to set read deadline", l.ErrAttr(err))
@@ -119,6 +122,10 @@ func (s *TCPServer) handleConnection(ctx context.Context, connection net.Conn, h
 			break
 		}
 	}
+}
+
+func (s *TCPServer) isClosing() bool {
+	return s.closing.Load()
 }
 
 // Close graceful shutdown server

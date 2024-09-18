@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-
+	"github.com/nextlag/in_memory/internal"
 	"github.com/nextlag/in_memory/pkg/logger/l"
 )
 
@@ -49,7 +49,7 @@ func (s *CMDServer) LaunchServer(ctx context.Context, handler Handler) error {
 
 		response = handler(ctx, []byte(request))
 		switch string(response) {
-		case "[ok]":
+		case internal.ResponseOk:
 			color.Green(string(response))
 		default:
 			color.Red(string(response))

@@ -1,4 +1,4 @@
-package configuration
+package server
 
 import (
 	"flag"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
+	"github.com/nextlag/in_memory/config"
 	"github.com/nextlag/in_memory/pkg/cleanenv"
 )
 
@@ -16,12 +17,12 @@ var (
 	cfg  Config
 	once sync.Once
 	Env  = ".env"
-	Yaml = "configuration/config.yaml"
+	Yaml = "config/server/config.yaml"
 )
 
 type (
 	Config struct {
-		CfgYAML string   `yaml:"config_yaml" env:"CONFIG_YAML"`
+		CfgYAML string   `yaml:"config_yaml" env:"CONFIG_SERVER_YAML"`
 		Server  *Server  `yaml:"server"`
 		Engine  *Engine  `yaml:"engine"`
 		Network *Network `yaml:"network"`
@@ -64,7 +65,7 @@ func Load() *Config {
 		}
 
 		flag.StringVar(&cfg.Network.TCPSocket, "addr", cfg.Network.TCPSocket, "Host TCP server")
-		flag.Var(&LogLevelValue{Value: &cfg.Logging.Level}, "level", "Log level (debug, info, warn, error)")
+		flag.Var(&config.LogLevelValue{Value: &cfg.Logging.Level}, "level", "Log level (debug, info, warn, error)")
 
 		if err = env.Parse(&cfg); err != nil {
 			log.Fatalf("error parsing .env variables: %v", err)

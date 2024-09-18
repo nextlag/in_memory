@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	config "github.com/nextlag/in_memory/configuration"
+	config "github.com/nextlag/in_memory/config/server"
 	"github.com/nextlag/in_memory/internal/server/initialize"
 )
 

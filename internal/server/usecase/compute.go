@@ -2,14 +2,16 @@ package usecase
 
 import (
 	"errors"
+
+	"github.com/nextlag/in_memory/pkg/parse"
 )
 
 type Compute struct {
-	parser   *Parser
+	parser   *parse.Parser
 	analyzer *Analyzer
 }
 
-func NewCompute(parser *Parser, analyzer *Analyzer) (*Compute, error) {
+func NewCompute(parser *parse.Parser, analyzer *Analyzer) (*Compute, error) {
 	if parser == nil {
 		return nil, errors.New("query parser is invalid")
 	}
