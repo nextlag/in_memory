@@ -28,7 +28,7 @@ func CreateEngine(cfg *config.Engine, log *l.Logger) (*in_memory.Engine, error) 
 		}
 	}
 
-	var opt []in_memory.InMemoryOption
+	var opt []in_memory.EngineOption
 	if cfg.PartitionsNumber != 0 {
 		opt = append(opt, in_memory.WithPartitions(cfg.PartitionsNumber))
 	}

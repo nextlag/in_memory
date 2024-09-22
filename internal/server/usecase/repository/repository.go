@@ -36,8 +36,8 @@ func New(engine Engine, log *l.Logger, options ...Option) (*Repository, error) {
 	}
 
 	var lastLSN int64
-
 	storage.generator = NewIDGenerator(lastLSN)
+
 	return storage, nil
 }
 

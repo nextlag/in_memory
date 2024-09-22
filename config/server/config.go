@@ -35,7 +35,7 @@ type (
 
 	Engine struct {
 		Type             string `yaml:"type"`
-		PartitionsNumber uint   `yaml:"partitions_number"`
+		PartitionsNumber int    `yaml:"partitions_number"`
 	}
 
 	Network struct {

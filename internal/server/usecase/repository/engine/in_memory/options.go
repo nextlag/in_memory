@@ -1,12 +1,12 @@
 package in_memory
 
-type InMemoryOption func(*Engine)
+type EngineOption func(*Engine)
 
-func WithPartitions(partitionsNumber uint) InMemoryOption {
-	return func(db *Engine) {
-		db.partitions = make([]*HashTable, partitionsNumber)
-		for i := 0; i < int(partitionsNumber); i++ {
-			db.partitions[i] = NewHashTable()
+func WithPartitions(partitionsNum int) EngineOption {
+	return func(e *Engine) {
+		e.partitions = make([]*HashTable, partitionsNum)
+		for i := 0; i < partitionsNum; i++ {
+			e.partitions[i] = NewHashTable()
 		}
 	}
 }

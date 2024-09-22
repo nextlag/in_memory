@@ -14,7 +14,7 @@ type Engine struct {
 	log        *l.Logger
 }
 
-func New(log *l.Logger, options ...InMemoryOption) (*Engine, error) {
+func New(log *l.Logger, options ...EngineOption) (*Engine, error) {
 	if log == nil {
 		return nil, errors.New("logger is invalid")
 	}
@@ -77,6 +77,9 @@ func (e *Engine) Del(ctx context.Context, key string) {
 
 func (e *Engine) partitionIdx(key string) int {
 	hash := fnv.New32a()
-	_, _ = hash.Write([]byte(key))
+	_, err := hash.Write([]byte(key))
+	if err != nil {
+		return -1
+	}
 	return int(hash.Sum32()) % len(e.partitions)
 }
